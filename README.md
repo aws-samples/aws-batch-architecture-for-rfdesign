@@ -5,7 +5,7 @@ This can be visulized with the following schematic:
 
 ![schematic](images/image_1.jpg)
 
-In the schematic above, new structures (orange, blue, yellow) are designed that are structurally similair to the green structure, but have different sequences, while still conserving the `ANK` region. 
+In the schematic above, new structures (orange, blue, yellow) are designed that are structurally similair to the original structure (green), but have different sequences, while still conserving the `ANK` region. 
 A number of tools and approaches leveraging deep learning, such as [RFDesign](https://github.com/RosettaCommons/RFDesign) and [diffusion models](https://arxiv.org/abs/2205.15019), have been developed to approach this problem and variants of it.
 
 In this repository, we demonstrate how RFDesign can be deployed on AWS infrastructure; The respository contains the CloudFormation template, Dockerfile and sample scripts for submitting jobs to [AWS Batch](https://aws.amazon.com/batch/).
