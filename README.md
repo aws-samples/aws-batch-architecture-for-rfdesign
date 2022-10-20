@@ -1,30 +1,30 @@
 ## Overview
 Proteins are large biomolecules that play a critical role in the body, and a key problem in the field of macromolecular modeling is protein structure design. Frequently, this problem takes the form as follows: **Given a protein structure and sequence, and a particular functional site, design a new protein that will fold into the same structure.** Generally, additional requirements are that certain components of the structure must have conserved properties, such as the preservation of an active site. 
 
-This can be visulized with the following schematic:
+This can be visualized with the following schematic:
 
 ![schematic](images/image_1.jpg)
 
-In the schematic above, new structures (orange, blue, yellow) are designed that are structurally similair to the original structure (green), but have different sequences, while still conserving the `ANK` region. 
+In the schematic above, new structures (orange, blue, yellow) are designed that are structurally similar to the original structure (green), but have different sequences, while still conserving the `ANK` region. 
 A number of tools and approaches leveraging deep learning, such as [RFDesign](https://github.com/RosettaCommons/RFDesign) and [diffusion models](https://arxiv.org/abs/2205.15019), have been developed to approach this problem and variants of it.
 
-In this repository, we demonstrate how RFDesign can be deployed on AWS infrastructure; The respository contains the CloudFormation template, Dockerfile and sample scripts for submitting jobs to [AWS Batch](https://aws.amazon.com/batch/).
+In this repository, we demonstrate how RFDesign can be deployed on AWS infrastructure; The repository contains the CloudFormation template, Dockerfile and sample scripts for submitting jobs to [AWS Batch](https://aws.amazon.com/batch/).
 
- The architecture for this approach is similair to the previously published [AWS Batch Architecture for Alphafold](https://github.com/aws-samples/aws-batch-architecture-for-alphafold). The architecture is as follows:
+ The architecture for this approach is similar to the previously published [AWS Batch Architecture for Alphafold](https://github.com/aws-samples/aws-batch-architecture-for-alphafold). The architecture is as follows:
 
 
 ![schematic](images/image_2.jpg)
 
-Note also that that this image only supports using the `hallucination` and `inpainting` functionality, and not the `AF_metrics` and `pyrosetta` functionality provided by RFDesign. If you wish to run that functionalilty, you will need to modify the image to download the Alphafold parameters. You can see the RFDesign released Docker [image](https://github.com/RosettaCommons/RFDesign/tree/main/docker) for how to do so.
+Note also that that this image only supports using the `hallucination` and `inpainting` functionality, and not the `AF_metrics` and `pyrosetta` functionality provided by RFDesign. If you wish to run that functionality, you will need to modify the image to download the Alphafold parameters. You can see the RFDesign released Docker [image](https://github.com/RosettaCommons/RFDesign/tree/main/docker) for how to do so.
 
 We next outline the steps to deploy the workload. 
 
 ## 1. Build and Push the Docker Image to Amazon Elastic Container Registry
 
 
-After cloning this respository and changing directory into  `AWS-Batch-Arch-for-RFDesign`, you must build and push the container to [Amazon Elastic Container Registry (ECR)](https://aws.amazon.com/ecr/). This image will clone the RFDesign respository and install the relevant dependencies within the docker image. For this step, you must have docker installed.
+After cloning this repository and changing directory into  `AWS-Batch-Arch-for-RFDesign`, you must build and push the container to [Amazon Elastic Container Registry (ECR)](https://aws.amazon.com/ecr/). This image will clone the RFDesign repository and install the relevant dependencies within the docker image. For this step, you must have docker installed.
 
-Optionally, you may also choose to locally run the tests provided by the RFDesign respository. If you wish to run these tests, you should comment out the line `ENTRYPOINT ["bash", "-c"]` in the dockerfile. You can then run the tests interactivley by running the docker image in interactive mode.
+Optionally, you may also choose to locally run the tests provided by the RFDesign repository. If you wish to run these tests, you should comment out the line `ENTRYPOINT ["bash", "-c"]` in the Dockerfile. You can then run the tests interactively by running the docker image in interactive mode.
     
     IMAGE_NAME="proteindesign_image" #or select your own name
     
@@ -33,12 +33,12 @@ Optionally, you may also choose to locally run the tests provided by the RFDesig
 Copy the ECR URI for the image (it will look something like: `xxxxxxxxxxxx.dkr.ecr.us-east-1.amazonaws.com/$IMAGE_NAME`); you will need this for the Cloud Formation Template in the next step. Do not include the tag in the URI; the Cloud Formation Template deployed in the next step with automatically pull the latest version.
     
     
-Please note that while it is possible to build and push the container from the your local machine (assuming that you have AWS CLI access), you may want to leverage an Amazon SageMaker Notebook with a GPU instance to build and push the container; building the image is generally faster on notebook instances. When testing, we were able to use an `ml.g4dn.xlarge` to build and push the image to ECR.
+Please note that while it is possible to build and push the container from your local machine (assuming that you have AWS CLI access), you may want to leverage an Amazon SageMaker Notebook with a GPU instance to build and push the container; building the image is generally faster on notebook instances. When testing, we were able to use an `ml.g4dn.xlarge` to build and push the image to ECR.
 
 
 ## 2. Deploy the CloudFormation Infrastructure Stack
 
-Next, you must deploy the underlying infrastructure to support Batch job submissions. As shown in the diagram above, this includes a [Virtual Private Cloud](https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html) (VPC) (which has a private and public subnet), and a Batch compute environment, which leverages the prive subnet for the compute environment.
+Next, you must deploy the underlying infrastructure to support Batch job submissions. As shown in the diagram above, this includes a [Virtual Private Cloud](https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html) (VPC) (which has a private and public subnet), and a Batch compute environment, which leverages the private subnet for running submitted jobs.
 
 
 ### Option 1: Create New VPC Infrastructure
@@ -86,9 +86,9 @@ Wait for the CFN to finish executing before running the next steps. This should 
 
 ## 3. Submit a Protein Hallucination Job
 
-The `RFDesign` protein hallucination functionality allows for designing new proteins. The example here is slightly modified from the test script provided by rfdesign; and uses the structures `rsvf-v_5tpn.pdb` and `rsvf-v_5tpn_receptor_frag.pdb` provided by the RFDesign repository.
+The `RFDesign` protein hallucination functionality allows for designing new proteins. The example here is slightly modified from the test script provided by RFDesign; and uses the structures `rsvf-v_5tpn.pdb` and `rsvf-v_5tpn_receptor_frag.pdb` provided by the RFDesign repository.
 
-Prior to running this job, you must first put the files `rsvf-v_5tpn.pdb` and `rsvf-v_5tpn_receptor_frag.pdb` (found [here](https://github.com/RosettaCommons/RFDesign/tree/main/hallucination/tests)) in a bucket/directory in S3. S3_RF_DESIGN_LOCATION_INPUT must then be set to point to that location (e.g. "s3://my_bucket/5tpn_directory"). Set S3_RF_DESIGN_LOCATION_OUTPUT to a seperate output directory of your choosing in S3. 
+Prior to running this job, you must first put the files `rsvf-v_5tpn.pdb` and `rsvf-v_5tpn_receptor_frag.pdb` (found [here](https://github.com/RosettaCommons/RFDesign/tree/main/hallucination/tests)) in a bucket/directory in S3. S3_RF_DESIGN_LOCATION_INPUT must then be set to point to that location (e.g. "s3://my_bucket/5tpn_directory"). Set S3_RF_DESIGN_LOCATION_OUTPUT to a separate output directory of your choosing in S3. 
 
 If you wish to leverage this script for different structures, you will need to edit the corresponding structure names in the `rf_design_hallucination_batch_submission_template.json` file. 
 
@@ -107,7 +107,7 @@ First, change directory into the `AWS-Batch-Arch-for-RFDesign` directory. Then e
      
      aws batch submit-job --job-name protein_hallucination_job --job-queue  $JOB_QUEUE	--job-definition $PROT_DESIGN_JOB_DEFINITION    --container-overrides file://example_rf_design_hallucination_batch_submission.json
      
-When submitting this job, it took about 5-10 minutes for the job to start. Once the job started, it took and about 30 seconds to finish. Note that you can decrease the latency for the job to start by increasing the `MinvCPU` parameter in the cloudformation template with a corresponding increase in cost for having continously running CPUs. You can modify the parameters of the job by modifying the file `rf_design_hallucination_batch_submission_template.json`.
+When submitting this job, it took about 5-10 minutes for the job to start. Once the job started, it took and about 30 seconds to finish. Note that you can decrease the latency for the job to start by increasing the `MinvCPU` parameter in the cloudformation template with a corresponding increase in cost for having continuously running CPUs. You can modify the parameters of the job by modifying the file `rf_design_hallucination_batch_submission_template.json`.
 
 ## 4. Submit a Protein Inpainting Job
 
@@ -127,7 +127,7 @@ If you wish to leverage this script for different structures, you will need to e
 
     aws batch submit-job --job-name protein_inpainting_job  --job-queue $JOB_QUEUE --job-definition $PROT_DESIGN_JOB_DEFINITION      --container-overrides file://example_rf_design_inpainting_batch_submission.json
     
-When submitting this job, it took about 5-10 minutes for the job to start. Once the job started, it took and about 30 seconds to finish. Note that you can decrease the latency for the job to start by increasing the `MinvCPU` parameter in the cloudformation template with a corresponding increase in cost for having continously running CPUs.
+When submitting this job, it took about 5-10 minutes for the job to start. Once the job started, it took and about 30 seconds to finish. Note that you can decrease the latency for the job to start by increasing the `MinvCPU` parameter in the cloudformation template with a corresponding increase in cost for having continuously running CPUs.
 
     
 
