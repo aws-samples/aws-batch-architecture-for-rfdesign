@@ -10,7 +10,7 @@ A number of tools and approaches leveraging deep learning, such as [RFDesign](ht
 
 In this repository, we demonstrate how RFDesign can be deployed on AWS infrastructure; The repository contains the CloudFormation template, Dockerfile and sample scripts for submitting jobs to [AWS Batch](https://aws.amazon.com/batch/).
 
- The architecture for this approach is similar to the previously published [AWS Batch Architecture for Alphafold](https://github.com/aws-samples/aws-batch-architecture-for-alphafold). The architecture is as follows:
+ The architecture for this approach is similar to the previously published [AWS Batch Architecture for Protein Folding and Design](https://github.com/aws-samples/aws-batch-arch-for-protein-folding). The architecture is as follows:
 
 
 ![schematic](images/image_2.jpg)
