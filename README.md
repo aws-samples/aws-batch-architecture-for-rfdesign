@@ -1,35 +1,36 @@
 ## Overview
-Proteins are large biomolecules that play an important role in the body. A key problem in the field of macromolecule design is protein structure design. Frequently, this problem takes the form as follows **Given a protein structure and sequence, and a particular functional site, design a new protein that will fold into the same structure.** Generally, additional requirements are that certain components of the structure must have conserved properties, such as the preservation of an active site. 
+Proteins are large biomolecules that play a critical role in the body, and a key problem in the field of macromolecule design is protein structure design. Frequently, this problem takes the form as follows: **Given a protein structure and sequence, and a particular functional site, design a new protein that will fold into the same structure.** Generally, additional requirements are that certain components of the structure must have conserved properties, such as the preservation of an active site. 
 
 This can be visulized with the following schematic:
 
 ![schematic](images/image_1.jpg)
 
-In the schematic above, new structures are designed (orange, blue, yellow) that are structurally similair to the green structure, but have different sequences, while still preserving `ANK`. 
-A number of tools and approaches leveraging deep learning such as [RFDesign](https://github.com/RosettaCommons/RFDesign) and [protein diffusion](https://arxiv.org/abs/2205.15019), have been developed to approach this problem and variants of it, 
+In the schematic above, new structures (orange, blue, yellow) are designed that are structurally similair to the green structure, but have different sequences, while still conserving the `ANK` region. 
+A number of tools and approaches leveraging deep learning, such as [RFDesign](https://github.com/RosettaCommons/RFDesign) and [diffusion models](https://arxiv.org/abs/2205.15019), have been developed to approach this problem and variants of it.
 
-In this repository, we demonstrate how RFDesign can be deployed on AWS infrastructure. The architecture for this approach is similair to the previously published [AWS Batch Architecture for Alphafold](https://github.com/aws-samples/aws-batch-architecture-for-alphafold). The architecture is as follows:
+In this repository, we demonstrate how RFDesign can be deployed on AWS infrastructure; The respository contains the CloudFormation template, Dockerfile and sample scripts for submitting jobs to [AWS Batch](https://aws.amazon.com/batch/).
+
+ The architecture for this approach is similair to the previously published [AWS Batch Architecture for Alphafold](https://github.com/aws-samples/aws-batch-architecture-for-alphafold). The architecture is as follows:
 
 
-The respository contains the CloudFormation template, Dockerfile and sample scripts for submitting jobs to [AWS Batch](https://aws.amazon.com/batch/).
 ![schematic](images/image_2.jpg)
 
-Note also that that this image only supports using the `hallucination` and `inpainting` functionality, and not the `AF_metrics` and `pyrosetta` functionality. If you wish to run that functionalilty, you will need to modify the image to download the Alphafold parameters. You can see the RFDesign released Docker [image](https://github.com/RosettaCommons/RFDesign/tree/main/docker) for how to do so.
+Note also that that this image only supports using the `hallucination` and `inpainting` functionality, and not the `AF_metrics` and `pyrosetta` functionality provided by RFDesign. If you wish to run that functionalilty, you will need to modify the image to download the Alphafold parameters. You can see the RFDesign released Docker [image](https://github.com/RosettaCommons/RFDesign/tree/main/docker) for how to do so.
 
 We next outline the steps to deploy the workload. 
 
 ## 1. Build and Push the Docker Image to Amazon Elastic Container Registry
 
 
-After cloning this respository and changing directory into into `AWS-Batch-Arch-for-RFDesign`, you must build and push the container to [Amazon Elastic Container Registry (ECR)](https://aws.amazon.com/ecr/). This image will clone the RFDesign respository and install the relevant dependencies. Note that for this step, you must have docker installed.
+After cloning this respository and changing directory into  `AWS-Batch-Arch-for-RFDesign`, you must build and push the container to [Amazon Elastic Container Registry (ECR)](https://aws.amazon.com/ecr/). This image will clone the RFDesign respository and install the relevant dependencies within the docker image. For this step, you must have docker installed.
 
-Optionally, you may also choose to locally run the tests provided by the RFDesign respository. If you wish to run these tests, you should comment out line `ENTRYPOINT ["bash", "-c"]`. You can then run the tests interactivley by running the docker image in interactive mode.
+Optionally, you may also choose to locally run the tests provided by the RFDesign respository. If you wish to run these tests, you should comment out the line `ENTRYPOINT ["bash", "-c"]` in the dockerfile. You can then run the tests interactivley by running the docker image in interactive mode.
     
     IMAGE_NAME="proteindesign_image" #or select your own name
     
-    sh ./build_and_push.sh Dockerfile $IMAGE_NAME
+    sh ./build_and_push.sh Dockerfile $IMAGE_NAME #push the image to ecr
     
-Copy the ECR URI for the image (it will look something lilike: xxxxxxxxxxxx.dkr.ecr.us-east-1.amazonaws.com/$IMAGE_NAME); you will need this for the Cloud Formation Template in the next step. Do not include the tag in the URI; the Cloud Formation Template deployed in the next step with automatically pull the latest version.
+Copy the ECR URI for the image (it will look something like: `xxxxxxxxxxxx.dkr.ecr.us-east-1.amazonaws.com/$IMAGE_NAME`); you will need this for the Cloud Formation Template in the next step. Do not include the tag in the URI; the Cloud Formation Template deployed in the next step with automatically pull the latest version.
     
     
 Please note that while it is possible to build and push the container from the your local machine (assuming that you have AWS CLI access), you may want to leverage an Amazon SageMaker Notebook with a GPU instance to build and push the container; building the image is generally faster on notebook instances. When testing, we were able to use an `ml.g4dn.xlarge` to build and push the image to ECR.
