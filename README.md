@@ -67,7 +67,7 @@ If you already have a VPC and Subnet you wish to use, you can use this option.
 
 1. Choose **Launch Stack**:
 
-    [![Launch Stack](images/LaunchStack.jpg)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://aws-hcls-ml.s3.amazonaws.com/workshop/ProteinDesign/infrastructure/cfn_batch_rfdesign_existing_resources.yamll)
+    [![Launch Stack](images/LaunchStack.jpg)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://aws-hcls-ml.s3.amazonaws.com/workshop/ProteinDesign/infrastructure/cfn_batch_rfdesign_existing_resources.yaml)
     
 2. Provide a name for your stack, and fill in the parameters:
 
