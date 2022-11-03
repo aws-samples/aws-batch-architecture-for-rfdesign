@@ -1,3 +1,5 @@
+# AWS Batch Architecture for RFDesign
+
 ## Overview
 Proteins are large biomolecules that play a critical role in the body, and a key problem in the field of macromolecular modeling is protein structure design. Frequently, this problem takes the form as follows: **Given a protein structure and sequence, and a particular functional site, design a new protein that will fold into the same structure.** Generally, additional requirements are that certain components of the structure must have conserved properties, such as the preservation of an active site. 
 
