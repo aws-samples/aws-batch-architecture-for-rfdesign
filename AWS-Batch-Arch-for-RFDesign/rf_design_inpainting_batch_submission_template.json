@@ -1,5 +1,0 @@
-<<<<<<< HEAD
-{"command":["S3_LOCATION_INPUT=$S3_RF_DESIGN_LOCATION_INPUT;S3_LOCATION_OUTPUT=$S3_RF_DESIGN_LOCATION_OUTPUT;mkdir -p output; mkdir -p input;aws s3 cp $S3_RF_DESIGN_LOCATION_INPUT input/2kl8.pdb;python /RFDesign/inpainting/inpaint.py --dump_all  --pdb=input/2kl8.pdb --out=output/output --contigs A25-50,10,A61-79;  aws s3 cp --recursive output $S3_RF_DESIGN_LOCATION_OUTPUT;"]}
-=======
-{"command":["S3_LOCATION_INPUT=$S3_RF_DESIGN_LOCATION_INPUT;S3_LOCATION_OUTPUT=$S3_RF_DESIGN_LOCATION_OUTPUT;mkdir -p output; mkdir -p input;aws s3 cp $S3_RF_DESIGN_LOCATION_INPUT input/2kl8.pdb;python /RFDesign/inpainting/inpaint.py --pdb=input/2kl8.pdb --out=output/output --dump_all --contigs A25-50,10,A61-79;  aws s3 cp --recursive output $S3_RF_DESIGN_LOCATION_OUTPUT;"]}
->>>>>>> 0ee3f6850930a4f215e9c655eb79a3c3862016b2
