@@ -1,5 +1,7 @@
 # AWS Batch Architecture for RFDesign
 
+*Please note that the architecture presented in this repository has been deprecated in favor of the [AWS Batch Architecture for Protein Folding and Design](https://github.com/aws-samples/aws-batch-arch-for-protein-folding); which contains tools for running RFDesign and other macromolecule design tools.*
+
 ## Overview
 Proteins are large biomolecules that play a critical role in the body, and a key problem in the field of macromolecular modeling is protein structure design. Importantly, efficient protein design has the potential for generating a better drug development pipeline by allowing researchers to focus on designed proteins that are more likeley to have the needed theraputic properties. For example, protein design tools can be used to design specific and high affinity antibodies that can be experimentally tested. 
 
